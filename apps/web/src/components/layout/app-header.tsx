@@ -1,0 +1,56 @@
+import Link from 'next/link';
+
+import { AUTH_NAV } from '@/config/navigation';
+import { ConversationNavLink } from '@/components/layout/conversation-nav-link';
+import { NotificationBell } from '@/components/notifications/notification-bell';
+import { Button } from '@/components/ui/button';
+
+interface AppHeaderProps {
+  title?: string;
+  description?: string;
+  organizationName: string;
+  showNotifications?: boolean;
+}
+
+export function AppHeader({
+  title,
+  description,
+  organizationName,
+  showNotifications = true,
+}: AppHeaderProps) {
+  return (
+    <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+      <div className="min-w-0">
+        {title ? (
+          <>
+            <p className="truncate text-[0.6875rem] font-semibold tracking-wide text-primary/80">
+              {organizationName}
+            </p>
+            <h1 className="mt-0.5 truncate text-lg font-bold tracking-tight sm:text-xl">
+              {title}
+            </h1>
+          </>
+        ) : (
+          <h1 className="truncate text-lg font-bold tracking-tight sm:text-xl">
+            {organizationName}
+          </h1>
+        )}
+        {description ? (
+          <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{description}</p>
+        ) : null}
+      </div>
+      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+        {showNotifications ? <NotificationBell /> : null}
+        <ConversationNavLink />
+        <Button
+          variant="outline"
+          size="sm"
+          className="shrink-0 rounded-[calc(var(--radius)-4px)] bg-background/70 backdrop-blur-sm"
+          asChild
+        >
+          <Link href={AUTH_NAV.workspaceSelect.href}>تغییر فضا</Link>
+        </Button>
+      </div>
+    </header>
+  );
+}

@@ -1,0 +1,219 @@
+import Link from 'next/link';
+import { notFound, redirect } from 'next/navigation';
+import {
+  ArrowLeft,
+  CheckSquare,
+  LayoutDashboard,
+  MessageSquare,
+  Receipt,
+  Target,
+  Users,
+} from 'lucide-react';
+
+import {
+  canAccessSpecialtyDashboard,
+  getPackDefinition,
+  getPackNavItemLabel,
+  getSpecialty,
+  isPackNavKeyEnabled,
+  LEAD_LABELS,
+} from '@kesbyar/shared';
+
+import { PageHeader } from '@/components/layout/page-header';
+import { PackDashboardCharts } from '@/components/dashboard/pack-dashboard-charts';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { requireSession } from '@/lib/auth/session';
+import { prisma } from '@/lib/prisma';
+import { getSpecialtyDashboardWidgets } from '@/server/packs/specialty-dashboard.service';
+
+export default async function SpecialtyDashboardPage({
+  params,
+}: {
+  params: Promise<{ specialty: string }>;
+}) {
+  const { specialty: specialtyId } = await params;
+  const session = await requireSession();
+  const specialty = getSpecialty(specialtyId);
+
+  if (!specialty) {
+    notFound();
+  }
+
+  const org = await prisma.organization.findUnique({
+    where: { id: session.organizationId },
+    select: { industrySpecialty: true, industryPack: true },
+  });
+
+  if (!canAccessSpecialtyDashboard(org?.industrySpecialty, specialtyId)) {
+    redirect('/dashboard');
+  }
+
+  const packId = org?.industryPack ?? specialty.basePack;
+  const [widgets, basePack] = await Promise.all([
+    getSpecialtyDashboardWidgets(session.organizationId, specialty),
+    Promise.resolve(getPackDefinition(specialty.basePack)),
+  ]);
+
+  const packHome = basePack.homeRoute;
+  const showLeads = isPackNavKeyEnabled(packId, 'leads');
+  const showTasks = isPackNavKeyEnabled(packId, 'tasks');
+  const showConversation = isPackNavKeyEnabled(packId, 'conversation');
+  const leadsLabel = getPackNavItemLabel(
+    packId,
+    'leads',
+    specialtyId === 'freelancer' ? 'فرصت پروژه' : LEAD_LABELS.plural,
+  );
+
+  return (
+    <div className="ky-pack-panel space-y-6">
+      <PageHeader
+        title={specialty.label}
+        description={specialty.description}
+        actions={
+          <div className="flex flex-wrap gap-2">
+            {packHome ? (
+              <Button asChild variant="outline" size="sm">
+                <Link href={packHome}>
+                  <LayoutDashboard className="ms-2 h-4 w-4" />
+                  پیشخوان {basePack.label}
+                </Link>
+              </Button>
+            ) : null}
+            <Button asChild variant="outline" size="sm">
+              <Link href="/customers">
+                <Users className="ms-2 h-4 w-4" />
+                {specialty.labels.customers}
+              </Link>
+            </Button>
+          </div>
+        }
+      />
+
+      <div className="ky-pack-stats">
+        {widgets.map((widget) => (
+          <Card key={widget.key} className="ky-pack-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                {widget.title}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {widget.href ? (
+                <Link
+                  href={widget.href}
+                  className={`text-3xl font-bold tabular-nums hover:underline ${
+                    widget.variant === 'warning' ? 'text-amber-600' : ''
+                  }`}
+                >
+                  {widget.value}
+                </Link>
+              ) : (
+                <p
+                  className={`text-3xl font-bold tabular-nums ${
+                    widget.variant === 'warning' ? 'text-amber-600' : ''
+                  }`}
+                >
+                  {widget.value}
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <PackDashboardCharts
+        organizationId={session.organizationId}
+        packId={packId}
+        specialtyId={specialtyId}
+      />
+
+      <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+        <Card className="ky-pack-card">
+          <CardHeader>
+            <CardTitle className="text-base">نکات عملیاتی</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="list-inside list-disc space-y-2 text-sm text-muted-foreground">
+              {specialty.tips.map((tip) => (
+                <li key={tip}>{tip}</li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+
+        <Card className="ky-pack-card border-s-4 border-s-primary">
+          <CardHeader>
+            <CardTitle className="text-base">دسترسی سریع</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-2">
+            <Button asChild variant="outline" size="sm" className="justify-start">
+              <Link href="/customers">
+                <Users className="ms-2 h-4 w-4" />
+                {specialty.labels.customers}
+              </Link>
+            </Button>
+            {showLeads ? (
+              <Button asChild variant="outline" size="sm" className="justify-start">
+                <Link href="/leads">
+                  <Target className="ms-2 h-4 w-4" />
+                  {leadsLabel}
+                </Link>
+              </Button>
+            ) : null}
+            {isPackNavKeyEnabled(packId, 'invoices') ? (
+              <Button asChild variant="outline" size="sm" className="justify-start">
+                <Link href="/invoices">
+                  <Receipt className="ms-2 h-4 w-4" />
+                  فاکتورها
+                </Link>
+              </Button>
+            ) : null}
+            {showTasks &&
+            (specialtyId === 'freelancer' ||
+              specialtyId === 'software-house' ||
+              specialty.basePack === 'GENERAL') ? (
+              <Button asChild variant="outline" size="sm" className="justify-start">
+                <Link href="/tasks">
+                  <CheckSquare className="ms-2 h-4 w-4" />
+                  {specialtyId === 'software-house' ? 'تسک‌های تحویل' : 'کارها و پروژه‌ها'}
+                </Link>
+              </Button>
+            ) : null}
+            {showConversation &&
+            (specialtyId === 'freelancer' ||
+              specialtyId === 'software-house' ||
+              specialty.basePack === 'GENERAL') ? (
+              <Button asChild variant="outline" size="sm" className="justify-start">
+                <Link href="/conversation">
+                  <MessageSquare className="ms-2 h-4 w-4" />
+                  دستیار
+                </Link>
+              </Button>
+            ) : null}
+            {(specialty.basePack === 'CLINIC' || specialty.basePack === 'BEAUTY_SALON') && (
+              <Button asChild variant="outline" size="sm" className="justify-start">
+                <Link
+                  href={
+                    specialty.basePack === 'CLINIC'
+                      ? '/clinic/appointments'
+                      : '/beauty/appointments'
+                  }
+                >
+                  <CheckSquare className="ms-2 h-4 w-4" />
+                  نوبت‌دهی
+                </Link>
+              </Button>
+            )}
+            <Button asChild variant="ghost" size="sm" className="justify-start">
+              <Link href="/dashboard">
+                <ArrowLeft className="ms-2 h-4 w-4" />
+                داشبورد عمومی
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}

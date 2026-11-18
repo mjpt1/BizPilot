@@ -1,0 +1,128 @@
+import { getPackHomeHref, getSpecialty } from '@kesbyar/shared';
+import type { MembershipRole } from '@prisma/client';
+
+const ROLE_HIERARCHY: Record<MembershipRole, number> = {
+  VIEWER: 1,
+  STAFF: 2,
+  MANAGER: 3,
+  ADMIN: 4,
+  OWNER: 5,
+};
+
+/** Minimum org role required per app route prefix */
+export const ROUTE_MIN_ROLE: Record<string, MembershipRole> = {
+  '/dashboard': 'VIEWER',
+  '/customers': 'STAFF',
+  '/leads': 'STAFF',
+  '/invoices': 'STAFF',
+  '/payments': 'STAFF',
+  '/tasks': 'STAFF',
+  '/command': 'STAFF',
+  '/conversation': 'STAFF',
+  '/memory': 'STAFF',
+  '/forecast': 'STAFF',
+  '/strategy': 'STAFF',
+  '/simulation': 'STAFF',
+  '/meetings': 'STAFF',
+  '/growth': 'STAFF',
+  '/twin': 'STAFF',
+  '/platform': 'STAFF',
+  '/chat': 'STAFF',
+  '/support': 'STAFF',
+  '/reports': 'MANAGER',
+  '/team': 'MANAGER',
+  '/inbox': 'STAFF',
+  '/activity': 'STAFF',
+  '/automation': 'STAFF',
+  '/files': 'STAFF',
+  '/help': 'STAFF',
+  '/onboarding': 'ADMIN',
+  '/settings': 'STAFF',
+  '/settings/audit': 'ADMIN',
+  '/settings/billing': 'MANAGER',
+  '/settings/members': 'ADMIN',
+  '/clinic': 'STAFF',
+  '/travel': 'STAFF',
+  '/retail': 'STAFF',
+  '/beauty': 'STAFF',
+  '/food': 'STAFF',
+  '/education': 'STAFF',
+  '/fitness': 'STAFF',
+  '/real-estate': 'STAFF',
+  '/workshop': 'STAFF',
+  '/law': 'STAFF',
+  '/accounting': 'STAFF',
+  '/insurance': 'STAFF',
+  '/agency': 'STAFF',
+  '/contracting': 'STAFF',
+  '/photography': 'STAFF',
+  '/cleaning': 'STAFF',
+  '/printing': 'STAFF',
+  '/logistics': 'STAFF',
+  '/automotive': 'STAFF',
+  '/hospitality': 'STAFF',
+  '/wholesale': 'STAFF',
+  '/events': 'STAFF',
+  '/agriculture': 'STAFF',
+  '/home-services': 'STAFF',
+  '/distribution': 'STAFF',
+  '/v': 'STAFF',
+  '/workspace': 'VIEWER',
+};
+
+export function hasMinRole(
+  userRole: MembershipRole,
+  required: MembershipRole,
+): boolean {
+  const userLevel = ROLE_HIERARCHY[userRole];
+  const requiredLevel = ROLE_HIERARCHY[required];
+  if (userLevel == null || requiredLevel == null) return false;
+  return userLevel >= requiredLevel;
+}
+
+export function canManageMembers(role: MembershipRole): boolean {
+  return hasMinRole(role, 'ADMIN');
+}
+
+export function canManageBilling(role: MembershipRole): boolean {
+  return hasMinRole(role, 'MANAGER');
+}
+
+export function canManageSettings(role: MembershipRole): boolean {
+  return hasMinRole(role, 'ADMIN');
+}
+
+export function getMinRoleForPath(pathname: string): MembershipRole {
+  const sorted = Object.keys(ROUTE_MIN_ROLE).sort((a, b) => b.length - a.length);
+  for (const prefix of sorted) {
+    if (pathname === prefix || pathname.startsWith(`${prefix}/`)) {
+      return ROUTE_MIN_ROLE[prefix]!;
+    }
+  }
+  return 'STAFF';
+}
+
+export function canAccessPath(role: MembershipRole, pathname: string): boolean {
+  return hasMinRole(role, getMinRoleForPath(pathname));
+}
+
+export function filterNavHrefs(role: MembershipRole, hrefs: string[]): string[] {
+  return hrefs.filter((href) => canAccessPath(role, href));
+}
+
+/** Home redirect after login — staff lands on tasks, others on pack/specialty home */
+export function getDefaultHomePath(
+  role: MembershipRole,
+  industryPack: string,
+  industrySpecialty?: string | null,
+): string {
+  const specialty = getSpecialty(industrySpecialty);
+  if (specialty && role !== 'VIEWER' && role !== 'STAFF') {
+    return specialty.homePath;
+  }
+
+  if (role === 'VIEWER') return '/dashboard';
+  if (role === 'STAFF') return '/tasks';
+
+  return getPackHomeHref(industryPack);
+}

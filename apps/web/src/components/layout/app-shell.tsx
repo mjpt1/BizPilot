@@ -1,0 +1,51 @@
+import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
+
+import { AppHeader } from '@/components/layout/app-header';
+import { AppLayoutClient } from '@/components/layout/app-layout-client';
+import { PushPermissionPrompt } from '@/components/notifications/push-permission-prompt';
+import { getSession, requireActiveWorkspace } from '@/lib/auth/session';
+import { needsOnboarding } from '@/server/onboarding/onboarding.service';
+import { getOrgModuleToggles } from '@/server/modules/org-module.service';
+
+export async function AppShell({ children }: { children: React.ReactNode }) {
+  await requireActiveWorkspace();
+  const session = await getSession();
+  if (!session) redirect('/login');
+
+  const moduleToggles = await getOrgModuleToggles(session.organizationId);
+
+  const pathname = (await headers()).get('x-pathname') ?? '';
+  const onOnboarding = pathname === '/onboarding' || pathname.startsWith('/onboarding/');
+
+  if (
+    !onOnboarding &&
+    needsOnboarding(session.role, session.industryPack, session.industrySpecialty)
+  ) {
+    redirect('/onboarding');
+  }
+
+  return (
+    <div className="flex h-[100dvh] flex-col overflow-hidden">
+      <AppLayoutClient
+        organizationName={session.organizationName}
+        organizationId={session.organizationId}
+        userName={session.user.name}
+        industryPack={session.industryPack}
+        industrySpecialty={session.industrySpecialty}
+        role={session.role}
+        isSuperAdmin={session.isSuperAdmin}
+        moduleToggles={moduleToggles}
+        header={
+          <AppHeader
+            organizationName={session.organizationName}
+            showNotifications={!onOnboarding}
+          />
+        }
+      >
+        {children}
+      </AppLayoutClient>
+      {!onOnboarding ? <PushPermissionPrompt /> : null}
+    </div>
+  );
+}

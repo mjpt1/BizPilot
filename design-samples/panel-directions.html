@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>نمونه‌های پنل کسب‌یار — انتخاب جهت بصری</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f4f6f8;
+      --ink: #1a2332;
+      --muted: #5c6b7a;
+      --line: #d8dee6;
+      --panel: #fff;
+      --accent: #2f6fed;
+      --radius: 14px;
+      --font: "Vazirmatn", Tahoma, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.6;
+    }
+
+    .studio {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 28px 20px 80px;
+    }
+
+    .studio-head {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    .studio-head h1 {
+      margin: 0;
+      font-size: clamp(1.5rem, 3vw, 2rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .studio-head p {
+      margin: 0;
+      color: var(--muted);
+      max-width: 52rem;
+      font-size: 0.95rem;
+    }
+
+    .picker {
+      display: grid;
+      gap: 14px;
+      margin-bottom: 22px;
+      padding: 16px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+    }
+    .picker-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    .picker-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--muted);
+      min-width: 4.5rem;
+    }
+    .chip {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 0.45rem 0.9rem;
+      font: inherit;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color .15s, background .15s, color .15s;
+    }
+    .chip[aria-pressed="true"] {
+      border-color: var(--accent);
+      background: color-mix(in srgb, var(--accent) 12%, white);
+      color: var(--accent);
+    }
+
+    .direction-note {
+      margin: 0;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: #eef3fb;
+      color: #274472;
+      font-size: 0.86rem;
+    }
+
+    .frames {
+      display: grid;
+      gap: 18px;
+    }
+    @media (min-width: 980px) {
+      .frames { grid-template-columns: 1.15fr 0.85fr; }
+    }
+
+    .frame {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(26, 35, 50, 0.05);
+    }
+    .frame-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--line);
+      background: #fafbfc;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--muted);
+    }
+    .frame-body {
+      min-height: 560px;
+      background: var(--shell-bg, #f6f7f9);
+    }
+
+    /* ═══════════ SHARED MOCK PRIMITIVES ═══════════ */
+    .shell {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      min-height: 560px;
+      font-family: var(--shell-font, var(--font));
+    }
+    @media (max-width: 720px) {
+      .shell { grid-template-columns: 1fr; }
+      .side { display: none; }
+    }
+
+    .side {
+      padding: 16px 12px;
+      border-inline-end: 1px solid var(--shell-line, #e5e9ef);
+      background: var(--shell-side, #fff);
+      color: var(--shell-side-ink, #1a2332);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 4px 8px 14px;
+      border-bottom: 1px solid var(--shell-line, #e5e9ef);
+      margin-bottom: 12px;
+    }
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 0.85rem;
+      color: #fff;
+      background: var(--shell-primary, #2f6fed);
+    }
+    .brand-name { font-weight: 800; font-size: 0.95rem; line-height: 1.2; }
+    .brand-sub { font-size: 0.7rem; opacity: 0.7; }
+
+    .nav { display: grid; gap: 4px; }
+    .nav a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      text-decoration: none;
+      color: inherit;
+      font-size: 0.82rem;
+      font-weight: 500;
+      opacity: 0.78;
+    }
+    .nav a.active {
+      opacity: 1;
+      font-weight: 700;
+      background: var(--shell-nav-active, rgba(47,111,237,.1));
+      color: var(--shell-primary, #2f6fed);
+      box-shadow: inset -3px 0 0 var(--shell-primary, #2f6fed);
+    }
+    .nav-ico {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: var(--shell-ico, rgba(0,0,0,.05));
+      font-size: 0.75rem;
+    }
+
+    .main { padding: 16px 18px 22px; }
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .eyebrow {
+      margin: 0;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--shell-muted, #6a7787);
+      letter-spacing: 0.02em;
+    }
+    .title {
+      margin: 2px 0 0;
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn {
+      border: 0;
+      border-radius: 10px;
+      padding: 0.5rem 0.9rem;
+      font: inherit;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: default;
+    }
+    .btn-primary {
+      background: var(--shell-primary, #2f6fed);
+      color: #fff;
+      box-shadow: 0 8px 18px color-mix(in srgb, var(--shell-primary, #2f6fed) 28%, transparent);
+    }
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--shell-line, #e5e9ef);
+      color: var(--shell-ink, #1a2332);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    @media (max-width: 560px) {
+      .stats { grid-template-columns: 1fr; }
+    }
+    .metric {
+      background: var(--shell-card, #fff);
+      border: 1px solid var(--shell-line, #e5e9ef);
+      border-radius: var(--shell-radius, 14px);
+      padding: 12px 14px;
+      position: relative;
+      overflow: hidden;
+    }
+    .metric::after {
+      content: "";
+      position: absolute;
+      inset-inline: 12px;
+      top: 0;
+      height: 2px;
+      border-radius: 999px;
+      background: var(--shell-primary, #2f6fed);
+      opacity: 0.55;
+    }
+    .metric-k {
+      margin: 0;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--shell-muted, #6a7787);
+    }
+    .metric-v {
+      margin: 6px 0 0;
+      font-size: 1.35rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.02em;
+    }
+    .metric-s {
+      margin: 4px 0 0;
+      font-size: 0.7rem;
+      color: var(--shell-muted, #6a7787);
+    }
+
+    .grid-2 {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: 1.2fr 0.8fr;
+    }
+    @media (max-width: 720px) {
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: var(--shell-card, #fff);
+      border: 1px solid var(--shell-line, #e5e9ef);
+      border-radius: var(--shell-radius, 14px);
+      padding: 14px;
+    }
+    .card h3 {
+      margin: 0 0 10px;
+      font-size: 0.88rem;
+      font-weight: 800;
+    }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--shell-line, #e5e9ef);
+      font-size: 0.8rem;
+    }
+    .row:last-child { border-bottom: 0; padding-bottom: 0; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 0.15rem 0.55rem;
+      font-size: 0.68rem;
+      font-weight: 700;
+      background: color-mix(in srgb, var(--shell-primary, #2f6fed) 14%, white);
+      color: var(--shell-primary, #2f6fed);
+    }
+
+    /* End-user portal */
+    .portal {
+      min-height: 560px;
+      padding: 22px 18px 28px;
+      font-family: var(--shell-font, var(--font));
+      background:
+        radial-gradient(ellipse 70% 45% at 100% 0%, color-mix(in srgb, var(--shell-primary, #2f6fed) 18%, transparent), transparent 55%),
+        var(--shell-bg, #f6f7f9);
+      color: var(--shell-ink, #1a2332);
+    }
+    .portal-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+    .portal-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+    }
+    .portal-hero {
+      border-radius: calc(var(--shell-radius, 14px) + 4px);
+      padding: 22px 20px;
+      margin-bottom: 14px;
+      background: var(--shell-hero, linear-gradient(135deg, var(--shell-primary, #2f6fed), color-mix(in srgb, var(--shell-primary, #2f6fed) 55%, #111)));
+      color: #fff;
+      box-shadow: 0 16px 36px color-mix(in srgb, var(--shell-primary, #2f6fed) 28%, transparent);
+    }
+    .portal-hero h2 {
+      margin: 0;
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .portal-hero p {
+      margin: 8px 0 0;
+      opacity: 0.9;
+      font-size: 0.88rem;
+      max-width: 28rem;
+    }
+    .portal-cta {
+      margin-top: 14px;
+      display: inline-flex;
+      border: 0;
+      border-radius: 999px;
+      padding: 0.55rem 1.1rem;
+      font: inherit;
+      font-size: 0.82rem;
+      font-weight: 800;
+      background: #fff;
+      color: var(--shell-primary, #2f6fed);
+    }
+    .portal-grid {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(2, 1fr);
+    }
+    @media (max-width: 560px) {
+      .portal-grid { grid-template-columns: 1fr; }
+    }
+    .portal-tile {
+      background: var(--shell-card, #fff);
+      border: 1px solid var(--shell-line, #e5e9ef);
+      border-radius: var(--shell-radius, 14px);
+      padding: 14px;
+    }
+    .portal-tile strong {
+      display: block;
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+    }
+    .portal-tile span {
+      font-size: 0.78rem;
+      color: var(--shell-muted, #6a7787);
+    }
+
+    /* Direction-specific overrides via data-dir */
+    [data-dir="soft_care"] {
+      --shell-font: "Vazirmatn", Tahoma, sans-serif;
+      --shell-radius: 16px;
+      --shell-bg: #f3f7f8;
+      --shell-side: #ffffff;
+      --shell-card: #ffffff;
+      --shell-line: #dce7ea;
+      --shell-muted: #5f7379;
+      --shell-ico: rgba(15, 118, 110, 0.1);
+    }
+    [data-dir="atelier"] {
+      --shell-font: "Noto Naskh Arabic", "Vazirmatn", serif;
+      --shell-radius: 22px;
+      --shell-bg: #faf6f4;
+      --shell-side: #fffaf8;
+      --shell-card: #ffffff;
+      --shell-line: #eddfe0;
+      --shell-muted: #8a6f73;
+      --shell-ico: rgba(190, 90, 120, 0.12);
+    }
+    [data-dir="atelier"] .title,
+    [data-dir="atelier"] .portal-hero h2,
+    [data-dir="atelier"] .brand-name {
+      font-family: "Noto Naskh Arabic", serif;
+      font-weight: 700;
+    }
+    [data-dir="ops"] {
+      --shell-font: "IBM Plex Sans Arabic", "Vazirmatn", sans-serif;
+      --shell-radius: 8px;
+      --shell-bg: #eef1f4;
+      --shell-side: #12181f;
+      --shell-side-ink: #e8edf2;
+      --shell-card: #ffffff;
+      --shell-line: #d5dbe3;
+      --shell-muted: #667484;
+      --shell-ico: rgba(255,255,255,0.08);
+      --shell-nav-active: rgba(255,255,255,0.1);
+    }
+    [data-dir="ops"] .nav a.active {
+      color: #fff;
+      box-shadow: inset -3px 0 0 var(--shell-primary);
+    }
+    [data-dir="ops"] .stats {
+      grid-template-columns: repeat(4, 1fr);
+    }
+    [data-dir="ops"] .metric {
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    [data-dir="ops"] .metric-v { font-size: 1.15rem; }
+    [data-dir="ledger"] {
+      --shell-font: "IBM Plex Sans Arabic", "Vazirmatn", sans-serif;
+      --shell-radius: 4px;
+      --shell-bg: #f7f5f0;
+      --shell-side: #fbfaf7;
+      --shell-card: #fffcf7;
+      --shell-line: #d9d2c4;
+      --shell-muted: #6d6558;
+      --shell-ico: transparent;
+      --shell-nav-active: transparent;
+    }
+    [data-dir="ledger"] .nav a {
+      border-radius: 0;
+      border-bottom: 1px solid transparent;
+    }
+    [data-dir="ledger"] .nav a.active {
+      background: transparent;
+      border-bottom-color: var(--shell-primary);
+      box-shadow: none;
+      color: var(--shell-ink, #1a2332);
+    }
+    [data-dir="ledger"] .nav-ico {
+      background: transparent;
+      width: auto;
+      height: auto;
+      font-size: 0.7rem;
+      opacity: 0.55;
+    }
+    [data-dir="ledger"] .metric::after { display: none; }
+    [data-dir="ledger"] .metric {
+      border-radius: 0;
+      border-width: 0 0 0 3px;
+      border-inline-start-color: var(--shell-primary);
+      box-shadow: none;
+    }
+    [data-dir="ledger"] .card,
+    [data-dir="ledger"] .portal-tile {
+      border-radius: 0;
+    }
+    [data-dir="ledger"] .portal-hero {
+      border-radius: 0;
+      background: #1c1915;
+      box-shadow: none;
+    }
+    [data-dir="ledger"] .portal-cta {
+      border-radius: 0;
+      color: #1c1915;
+    }
+
+    .pick-hint {
+      margin-top: 28px;
+      padding: 16px 18px;
+      border-radius: 14px;
+      border: 1px dashed var(--line);
+      background: #fff;
+      font-size: 0.9rem;
+    }
+    .pick-hint strong { display: block; margin-bottom: 6px; }
+  </style>
+</head>
+<body>
+  <div class="studio">
+    <header class="studio-head">
+      <h1>نمونه‌های جهت بصری پنل کسب‌یار</h1>
+      <p>
+        چهار جهت طراحی برای انتخاب. سمت راست/چپ: پنل مدیر و پورتال کاربر نهایی.
+        با تعویض شغل، رنگ و حس پنل عوض می‌شود — همان چیزی که در محصول واقعی باید بماند.
+      </p>
+    </header>
+
+    <div class="picker" role="group" aria-label="انتخاب نمونه">
+      <div class="picker-row">
+        <span class="picker-label">جهت</span>
+        <button type="button" class="chip" data-dir="soft_care" aria-pressed="true">۱. مراقبت نرم</button>
+        <button type="button" class="chip" data-dir="atelier" aria-pressed="false">۲. آتلیه زیبایی</button>
+        <button type="button" class="chip" data-dir="ops" aria-pressed="false">۳. اتاق عملیات</button>
+        <button type="button" class="chip" data-dir="ledger" aria-pressed="false">۴. دفتر رسمی</button>
+      </div>
+      <div class="picker-row">
+        <span class="picker-label">شغل</span>
+        <button type="button" class="chip job" data-job="hospital" aria-pressed="true">بیمارستان</button>
+        <button type="button" class="chip job" data-job="beauty" aria-pressed="false">کلینیک زیبایی</button>
+        <button type="button" class="chip job" data-job="dental" aria-pressed="false">دندانپزشکی</button>
+        <button type="button" class="chip job" data-job="cafe" aria-pressed="false">کافه</button>
+        <button type="button" class="chip job" data-job="retail" aria-pressed="false">فروشگاه</button>
+        <button type="button" class="chip job" data-job="agency" aria-pressed="false">آژانس</button>
+      </div>
+      <p class="direction-note" id="dirNote"></p>
+    </div>
+
+    <div class="frames" id="preview" data-dir="soft_care">
+      <!-- ADMIN -->
+      <section class="frame" aria-label="پنل مدیر">
+        <div class="frame-bar">
+          <span>پنل مدیر / اپراتور</span>
+          <span id="adminJobLabel">بیمارستان</span>
+        </div>
+        <div class="frame-body">
+          <div class="shell">
+            <aside class="side">
+              <div class="brand">
+                <div class="brand-mark" id="brandMark">ک</div>
+                <div>
+                  <div class="brand-name">کسب‌یار</div>
+                  <div class="brand-sub" id="orgName">بیمارستان نور</div>
+                </div>
+              </div>
+              <nav class="nav" aria-label="منو">
+                <a class="active" href="#"><span class="nav-ico">⌂</span> پیشخوان</a>
+                <a href="#"><span class="nav-ico">◷</span> نوبت‌ها</a>
+                <a href="#"><span class="nav-ico">◎</span id="navPeople">بیماران</a>
+                <a href="#"><span class="nav-ico">▤</span> فاکتورها</a>
+                <a href="#"><span class="nav-ico">⚙</span> تنظیمات</a>
+              </nav>
+            </aside>
+            <main class="main">
+              <div class="top">
+                <div>
+                  <p class="eyebrow" id="orgEyebrow">بیمارستان نور</p>
+                  <h2 class="title" id="adminTitle">پیشخوان امروز</h2>
+                </div>
+                <div class="actions">
+                  <button class="btn btn-ghost" type="button">گزارش</button>
+                  <button class="btn btn-primary" type="button" id="adminCta">نوبت جدید</button>
+                </div>
+              </div>
+              <div class="stats" id="adminStats">
+                <div class="metric">
+                  <p class="metric-k">نوبت‌های امروز</p>
+                  <p class="metric-v">۲۴</p>
+                  <p class="metric-s">۸ در انتظار</p>
+                </div>
+                <div class="metric">
+                  <p class="metric-k">وصول امروز</p>
+                  <p class="metric-v">۱۸٫۴ م</p>
+                  <p class="metric-s">۱۲ پرداخت</p>
+                </div>
+                <div class="metric">
+                  <p class="metric-k">پیگیری‌ها</p>
+                  <p class="metric-v">۵</p>
+                  <p class="metric-s">نیازمند تماس</p>
+                </div>
+              </div>
+              <div class="grid-2">
+                <div class="card">
+                  <h3 id="listTitle">نوبت‌های نزدیک</h3>
+                  <div class="row"><span>سارا محمدی · ۱۰:۳۰</span><span class="pill">تأیید شده</span></div>
+                  <div class="row"><span>رضا کریمی · ۱۱:۰۰</span><span class="pill">در انتظار</span></div>
+                  <div class="row"><span>مینا احمدی · ۱۱:۴۵</span><span class="pill">تأیید شده</span></div>
+                </div>
+                <div class="card">
+                  <h3>اقدام سریع</h3>
+                  <div class="row"><span>ثبت پرداخت</span><span>←</span></div>
+                  <div class="row"><span>پیام یادآوری</span><span>←</span></div>
+                  <div class="row"><span>صدور فاکتور</span><span>←</span></div>
+                </div>
+              </div>
+            </main>
+          </div>
+        </div>
+      </section>
+
+      <!-- END USER -->
+      <section class="frame" aria-label="پورتال کاربر">
+        <div class="frame-bar">
+          <span>سمت کاربر نهایی / مشتری</span>
+          <span id="portalJobLabel">بیمارستان</span>
+        </div>
+        <div class="frame-body">
+          <div class="portal">
+            <div class="portal-top">
+              <div class="portal-brand">
+                <div class="brand-mark" style="width:30px;height:30px;font-size:.75rem">ک</div>
+                <span id="portalBrand">پورتال بیمار — نور</span>
+              </div>
+              <button class="btn btn-ghost" type="button" style="font-size:.75rem">خروج</button>
+            </div>
+            <div class="portal-hero">
+              <h2 id="portalHello">سلام سارا، نوبت بعدی شما آماده‌ست</h2>
+              <p id="portalSub">سه‌شنبه ۲۸ مرداد · ۱۰:۳۰ · بخش پوست و زیبایی</p>
+              <button class="portal-cta" type="button" id="portalCta">مشاهده جزئیات نوبت</button>
+            </div>
+            <div class="portal-grid">
+              <div class="portal-tile">
+                <strong id="tile1t">رزرو نوبت</strong>
+                <span id="tile1s">انتخاب زمان خالی پزشک</span>
+              </div>
+              <div class="portal-tile">
+                <strong id="tile2t">سوابق و فاکتور</strong>
+                <span id="tile2s">دانلود و پرداخت آنلاین</span>
+              </div>
+              <div class="portal-tile">
+                <strong id="tile3t">پیام به پذیرش</strong>
+                <span id="tile3s">سؤال کوتاه قبل از مراجعه</span>
+              </div>
+              <div class="portal-tile">
+                <strong id="tile4t">یادآوری‌ها</strong>
+                <span id="tile4s">پیامک و اعلان داخل پورتال</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="pick-hint">
+      <strong>چطور انتخاب کنید؟</strong>
+      شمارهٔ جهت را بگویید (۱ تا ۴)، یا بگویید «ترکیب: شکل از جهت X + رنگ شغل‌ها مثل الان».
+      اگر HTML خودتان را دارید، همان را بفرستید تا جهت پنجم از روی آن ساخته شود.
+    </div>
+  </div>
+
+  <script>
+    const NOTES = {
+      soft_care: "۱. مراقبت نرم — تمیز، آرام، قابل‌اعتماد. مناسب کلینیک/بیمارستان/دندانپزشکی. گوشه‌های نرم، فاصلهٔ زیاد، حس «مراقبت».",
+      atelier: "۲. آتلیه زیبایی — گرم و لطیف، تایپوگرافی نمایشی‌تر. مناسب سالن/اسپا/زیبایی. گوشه‌های خیلی گرد، حس بوتیک.",
+      ops: "۳. اتاق عملیات — سایدبار تیره، KPI فشرده، سرعت اسکن بالا. مناسب فروشگاه/کافه/رستوران/انبار.",
+      ledger: "۴. دفتر رسمی — خطوط تیز، بدون سایه سنگین، حس دفتر و قرارداد. مناسب آژانس/حقوقی/B2B."
+    };
+
+    const JOBS = {
+      hospital: {
+        label: "بیمارستان",
+        org: "بیمارستان نور",
+        primary: "#1d4ed8",
+        people: "بیماران",
+        cta: "نوبت جدید",
+        title: "پیشخوان امروز",
+        list: "نوبت‌های نزدیک",
+        portalBrand: "پورتال بیمار — نور",
+        hello: "سلام سارا، نوبت بعدی شما آماده‌ست",
+        sub: "سه‌شنبه ۲۸ مرداد · ۱۰:۳۰ · بخش داخلی",
+        portalCta: "مشاهده جزئیات نوبت",
+        tiles: [
+          ["رزرو نوبت", "انتخاب زمان خالی پزشک"],
+          ["سوابق و فاکتور", "دانلود و پرداخت آنلاین"],
+          ["پیام به پذیرش", "سؤال کوتاه قبل از مراجعه"],
+          ["یادآوری‌ها", "پیامک و اعلان داخل پورتال"]
+        ]
+      },
+      beauty: {
+        label: "کلینیک زیبایی",
+        org: "کلینیک آترینا",
+        primary: "#db2777",
+        people: "مراجعان",
+        cta: "رزرو جدید",
+        title: "امروز در کلینیک",
+        list: "جلسات نزدیک",
+        portalBrand: "پورتال مراجع — آترینا",
+        hello: "سلام مینا، جلسه لیزر شما نزدیک است",
+        sub: "پنجشنبه ۳۰ مرداد · ۱۶:۰۰ · لیزر موهای زائد",
+        portalCta: "تأیید حضور",
+        tiles: [
+          ["رزرو جلسه", "انتخاب خدمات و زمان"],
+          ["پکیج‌های من", "جلسات باقی‌مانده"],
+          ["گالری قبل/بعد", "نمونه‌های کلینیک"],
+          ["پرداخت اقساط", "وضعیت قسط بعدی"]
+        ]
+      },
+      dental: {
+        label: "دندانپزشکی",
+        org: "مطب دکتر رضایی",
+        primary: "#0ea5e9",
+        people: "بیماران",
+        cta: "نوبت دندان",
+        title: "برنامه مطب",
+        list: "مراجعان امروز",
+        portalBrand: "پورتال بیمار — دکتر رضایی",
+        hello: "سلام علی، چکاپ دوره‌ای شما ثبت شد",
+        sub: "شنبه ۱ شهریور · ۰۹:۱۵ · جرم‌گیری",
+        portalCta: "جزئیات نوبت",
+        tiles: [
+          ["رزرو نوبت", "انتخاب پزشک و زمان"],
+          ["طرح درمان", "مراحل و هزینه تقریبی"],
+          ["عکس رادیولوژی", "فایل‌های پیوست"],
+          ["یادآوری بهداشت", "نکات بعد از درمان"]
+        ]
+      },
+      cafe: {
+        label: "کافه",
+        org: "کافه نارون",
+        primary: "#92400e",
+        people: "مشتریان",
+        cta: "سفارش جدید",
+        title: "پیشخوان شیفت",
+        list: "سفارش‌های باز",
+        portalBrand: "سفارش آنلاین — نارون",
+        hello: "سلام، امروز منوی ویژه داریم",
+        sub: "لاته فندق · کیک هویج · تا ساعت ۲۲",
+        portalCta: "شروع سفارش",
+        tiles: [
+          ["منوی امروز", "نوشیدنی و دسر"],
+          ["سفارش‌های من", "پیگیری آماده‌سازی"],
+          ["باشگاه مشتریان", "امتیاز و جایزه"],
+          ["رزرو میز", "برای جمع دوستانه"]
+        ]
+      },
+      retail: {
+        label: "فروشگاه",
+        org: "فروشگاه پارس",
+        primary: "#059669",
+        people: "مشتریان",
+        cta: "فاکتور سریع",
+        title: "فروش امروز",
+        list: "آخرین فروش‌ها",
+        portalBrand: "حساب مشتری — پارس",
+        hello: "سلام، سفارش شما در حال آماده‌سازی است",
+        sub: "کد سفارش #۴۸۲۱ · ارسال تا فردا",
+        portalCta: "پیگیری سفارش",
+        tiles: [
+          ["سفارش‌های من", "وضعیت ارسال"],
+          ["فاکتورها", "دانلود PDF"],
+          ["اعتبار حساب", "مانده و سقف"],
+          ["پشتیبانی", "ثبت تیکت"]
+        ]
+      },
+      agency: {
+        label: "آژانس",
+        org: "آژانس موج",
+        primary: "#4f46e5",
+        people: "لیدها",
+        cta: "لید جدید",
+        title: "پایپ‌لاین فروش",
+        list: "فرصت‌های گرم",
+        portalBrand: "پورتال مشتری — موج",
+        hello: "سلام، گزارش ماهانه پروژه آماده است",
+        sub: "کمپین تابستان · نسخهٔ نهایی برای تأیید",
+        portalCta: "مشاهده گزارش",
+        tiles: [
+          ["پروژه‌های من", "وضعیت و ددلاین"],
+          ["فایل‌ها", "دانلود تحویل‌ها"],
+          ["صورتحساب", "پرداخت آنلاین"],
+          ["درخواست تغییر", "فرم کوتاه"]
+        ]
+      }
+    };
+
+    const preview = document.getElementById("preview");
+    const note = document.getElementById("dirNote");
+    let currentDir = "soft_care";
+    let currentJob = "hospital";
+
+    function apply() {
+      preview.dataset.dir = currentDir;
+      note.textContent = NOTES[currentDir];
+      const job = JOBS[currentJob];
+      preview.style.setProperty("--shell-primary", job.primary);
+      preview.style.setProperty("--shell-hero", `linear-gradient(135deg, ${job.primary}, color-mix(in srgb, ${job.primary} 45%, #111))`);
+
+      document.getElementById("orgName").textContent = job.org;
+      document.getElementById("orgEyebrow").textContent = job.org;
+      document.getElementById("adminJobLabel").textContent = job.label;
+      document.getElementById("portalJobLabel").textContent = job.label;
+      document.getElementById("navPeople").textContent = job.people;
+      document.getElementById("adminCta").textContent = job.cta;
+      document.getElementById("adminTitle").textContent = job.title;
+      document.getElementById("listTitle").textContent = job.list;
+      document.getElementById("portalBrand").textContent = job.portalBrand;
+      document.getElementById("portalHello").textContent = job.hello;
+      document.getElementById("portalSub").textContent = job.sub;
+      document.getElementById("portalCta").textContent = job.portalCta;
+      const tiles = [
+        ["tile1t","tile1s"],["tile2t","tile2s"],["tile3t","tile3s"],["tile4t","tile4s"]
+      ];
+      tiles.forEach(([t,s], i) => {
+        document.getElementById(t).textContent = job.tiles[i][0];
+        document.getElementById(s).textContent = job.tiles[i][1];
+      });
+
+      // Ops wants 4 metrics; others 3 — keep DOM simple by toggling 4th via CSS already on grid
+      const stats = document.getElementById("adminStats");
+      let fourth = stats.querySelector("[data-extra]");
+      if (currentDir === "ops") {
+        if (!fourth) {
+          fourth = document.createElement("div");
+          fourth.className = "metric";
+          fourth.dataset.extra = "1";
+          fourth.innerHTML = `<p class="metric-k">موجودی کم</p><p class="metric-v">۷</p><p class="metric-s">نیاز به سفارش</p>`;
+          stats.appendChild(fourth);
+        }
+      } else if (fourth) {
+        fourth.remove();
+      }
+    }
+
+    document.querySelectorAll(".chip[data-dir]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".chip[data-dir]").forEach((b) => b.setAttribute("aria-pressed", "false"));
+        btn.setAttribute("aria-pressed", "true");
+        currentDir = btn.dataset.dir;
+        apply();
+      });
+    });
+    document.querySelectorAll(".chip.job").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".chip.job").forEach((b) => b.setAttribute("aria-pressed", "false"));
+        btn.setAttribute("aria-pressed", "true");
+        currentJob = btn.dataset.job;
+        apply();
+      });
+    });
+
+    apply();
+  </script>
+</body>
+</html>

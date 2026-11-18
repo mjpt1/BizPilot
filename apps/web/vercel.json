@@ -1,0 +1,12 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "cd ../.. && npm ci",
+  "buildCommand": "cd ../.. && npm run db:generate && npm run build --workspace=@kesbyar/web",
+  "framework": "nextjs",
+  "crons": [
+    {
+      "path": "/api/cron/automation",
+      "schedule": "0 6 * * *"
+    }
+  ]
+}
